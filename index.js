@@ -1,0 +1,112 @@
+const emojis = ["🐶", "🐱", "🐼", "🐸", "🦊", "🐵", "🐷", "🐰"];
+const board = document.getElementById("board");
+const scoreText = document.getElementById("score");
+const resetBtn = document.getElementById("reset");
+
+let cards = [];
+let first = null;
+let second = null;
+let lock = false;
+let score = 0;
+
+// Khởi tạo game
+function initGame() {
+    board.innerHTML = "";
+    score = 0;
+    scoreText.textContent = 0;
+    first = null;
+    second = null;
+    lock = false;
+
+    cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+
+    cards.forEach(createCard);
+}
+
+// Tạo 1 thẻ
+function createCard(emoji) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.textContent = "❓";
+    card.dataset.value = emoji;
+
+    card.onclick = () => flipCard(card);
+
+    board.appendChild(card);
+}
+
+// Xử lý lật thẻ
+function flipCard(card) {
+    if (lock) return;
+    if (card === first) return;
+    if (card.classList.contains("matched")) return;
+
+    card.textContent = card.dataset.value;
+    card.classList.add("open");
+
+    if (!first) {
+        first = card;
+        return;
+    }
+
+    second = card;
+    lock = true;
+    checkMatch();
+}
+
+// Kiểm tra trùng
+function checkMatch() {
+    const isMatch = first.dataset.value === second.dataset.value;
+
+    if (isMatch) {
+        handleSuccess();
+    } else {
+        handleFail();
+    }
+}
+
+// Khi đúng
+function handleSuccess() {
+    first.classList.add("matched");
+    second.classList.add("matched");
+
+    score++;
+    scoreText.textContent = score;
+
+    resetTurn();
+    checkWin();
+}
+
+// Khi sai
+function handleFail() {
+    setTimeout(() => {
+        first.textContent = "❓";
+        second.textContent = "❓";
+        first.classList.remove("open");
+        second.classList.remove("open");
+        resetTurn();
+    }, 800);
+}
+
+// Reset lượt
+function resetTurn() {
+    first = null;
+    second = null;
+    lock = false;
+}
+
+// Kiểm tra thắng
+function checkWin() {
+    const done = document.querySelectorAll(".matched").length;
+    if (done === 16) {
+        setTimeout(() => {
+            alert("🎉 Bạn đã chiến thắng!");
+        }, 300);
+    }
+}
+
+// Play Again
+resetBtn.onclick = initGame;
+
+// Chạy game lần đầu
+initGame();
