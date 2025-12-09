@@ -12,11 +12,11 @@ let score = 0;
 // Khởi tạo game
 function initGame() {
     board.innerHTML = "";
-    score = 0;
-    scoreText.textContent = 0;
     first = null;
     second = null;
     lock = false;
+    score = 0;
+    scoreText.textContent = 0;
 
     cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
 
@@ -38,7 +38,7 @@ function createCard(emoji) {
 // Xử lý lật thẻ
 function flipCard(card) {
     if (lock) return;
-    if (card === first) return;
+    if (first === card) return;
     if (card.classList.contains("matched")) return;
 
     card.textContent = card.dataset.value;
@@ -56,38 +56,27 @@ function flipCard(card) {
 
 // Kiểm tra trùng
 function checkMatch() {
-    const isMatch = first.dataset.value === second.dataset.value;
+    const matched = first.dataset.value === second.dataset.value;
 
-    if (isMatch) {
-        handleSuccess();
+    if (matched) {
+        first.classList.add("matched");
+        second.classList.add("matched");
+
+        score++;
+        scoreText.textContent = score;
+
+        resetTurn();
+        checkWin();
     } else {
-        handleFail();
+        setTimeout(() => {
+            first.textContent = "❓";
+            second.textContent = "❓";
+            first.classList.remove("open");
+            second.classList.remove("open");
+            resetTurn();
+        }, 800);
     }
 }
-
-// Khi đúng
-function handleSuccess() {
-    first.classList.add("matched");
-    second.classList.add("matched");
-
-    score++;
-    scoreText.textContent = score;
-
-    resetTurn();
-    checkWin();
-}
-
-// Khi sai
-function handleFail() {
-    setTimeout(() => {
-        first.textContent = "❓";
-        second.textContent = "❓";
-        first.classList.remove("open");
-        second.classList.remove("open");
-        resetTurn();
-    }, 800);
-}
-
 // Reset lượt
 function resetTurn() {
     first = null;
